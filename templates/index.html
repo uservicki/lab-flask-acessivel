@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Tarefas{% endblock %}
+
+{% block content %}
+<h1>Lista de Tarefas</h1>
+
+<form action="{{ url_for('adicionar') }}" method="post">
+    <label for="titulo-tarefa">Nova Tarefa:</label>
+    <input 
+        type="text" 
+        id="titulo-tarefa" 
+        name="titulo" 
+        required 
+        aria-required="true"
+        placeholder="Ex: Estudar WCAG"
+    >
+    <button type="submit">Adicionar</button>
+</form>
+
+<ul>
+    {% for tarefa in tarefas %}
+        <li class="{% if tarefa.concluida %}tarefa-concluida{% endif %}">
+            
+            <form action="{{ url_for('alternar', tarefa_id=tarefa.id) }}" method="post" style="display:inline;">
+                <button type="submit">
+                    {% if tarefa.concluida %}Desmarcar{% else %}Concluir{% endif %}
+                </button>
+            </form>
+
+            {{ tarefa.titulo }}
+
+            <form action="{{ url_for('deletar', tarefa_id=tarefa.id) }}" method="post" style="display:inline;">
+                <button type="submit">Excluir</button>
+            </form>
+
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

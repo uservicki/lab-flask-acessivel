@@ -29,5 +29,49 @@ def index():
     todas_tarefas = Tarefa.query.all()
     return render_template('index.html', tarefas=todas_tarefas)
 
+# Rota para Adicionar Tarefa (Entrada: POST com 'titulo')
+@app.route('/adicionar', methods=['POST'])
+def adicionar():
+    if request.method == 'POST':
+        # Entrada: Obtém o valor do input 'titulo'
+        titulo = request.form.get('titulo')
+
+        # Qualidade (Confiabilidade): Validação de entrada
+        if not titulo:
+            flash('O título da tarefa não pode estar vazio.', 'error')
+            return redirect(url_for('index'))
+
+        # Segurança (OWASP A03: Injection)
+        nova_tarefa = Tarefa(titulo=titulo)
+
+        db.session.add(nova_tarefa)
+        db.session.commit()
+
+    return redirect(url_for('index'))
+
+
+# Rota para Alternar Conclusão
+@app.route('/alternar/<int:tarefa_id>', methods=['POST'])
+def alternar(tarefa_id):
+    tarefa = db.get_or_404(Tarefa, tarefa_id)
+
+    tarefa.concluida = not tarefa.concluida
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
+
+# Rota para Deletar Tarefa
+@app.route('/deletar/<int:tarefa_id>', methods=['POST'])
+def deletar(tarefa_id):
+    tarefa = db.get_or_404(Tarefa, tarefa_id)
+
+    db.session.delete(tarefa)
+    db.session.commit()
+
+    flash('Tarefa excluída.', 'success')
+    return redirect(url_for('index'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
